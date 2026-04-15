@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="920" viewBox="0 0 1600 920" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F8FBFF"/>
+      <stop offset="100%" stop-color="#EEF4FF"/>
+    </linearGradient>
+    <linearGradient id="hit" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E8FFF2"/>
+      <stop offset="100%" stop-color="#CFF7DF"/>
+    </linearGradient>
+    <linearGradient id="miss" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFF3E6"/>
+      <stop offset="100%" stop-color="#FFDDB8"/>
+    </linearGradient>
+    <linearGradient id="user" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#EDF2FF"/>
+      <stop offset="100%" stop-color="#D8E3FF"/>
+    </linearGradient>
+    <linearGradient id="bpf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E7F0FF"/>
+      <stop offset="100%" stop-color="#C9DBFF"/>
+    </linearGradient>
+    <linearGradient id="store" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F2F2F2"/>
+      <stop offset="100%" stop-color="#D9D9D9"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L12,6 L0,12 z" fill="#415A77"/>
+    </marker>
+    <marker id="arrowHit" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L12,6 L0,12 z" fill="#2D8A4A"/>
+    </marker>
+    <marker id="arrowMiss" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L12,6 L0,12 z" fill="#B86A1B"/>
+    </marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#1F2A44" flood-opacity="0.12"/>
+    </filter>
+    <style>
+      .title { font: 700 34px "Inter", "PingFang SC", "Microsoft YaHei", sans-serif; fill: #1F2A44; }
+      .subtitle { font: 500 18px "Inter", "PingFang SC", "Microsoft YaHei", sans-serif; fill: #60708A; }
+      .label { font: 600 22px "Inter", "PingFang SC", "Microsoft YaHei", sans-serif; fill: #1F2A44; }
+      .small { font: 500 17px "Inter", "PingFang SC", "Microsoft YaHei", sans-serif; fill: #334155; }
+      .tiny { font: 500 15px "Inter", "PingFang SC", "Microsoft YaHei", sans-serif; fill: #415A77; }
+      .box { stroke: rgba(35,52,76,0.14); stroke-width: 2; rx: 22; filter: url(#shadow); }
+      .lane { fill: rgba(255,255,255,0.55); stroke: rgba(93,110,140,0.12); stroke-width: 1.5; rx: 28; }
+      .arrow-line { stroke: #415A77; stroke-width: 4; fill: none; marker-end: url(#arrow); }
+      .hit-line { stroke: #2D8A4A; stroke-width: 5; fill: none; marker-end: url(#arrowHit); }
+      .miss-line { stroke: #B86A1B; stroke-width: 5; fill: none; marker-end: url(#arrowMiss); stroke-dasharray: 12 10; }
+      .dash { stroke-dasharray: 10 10; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1600" height="920" fill="url(#bg)"/>
+
+  <text x="70" y="78" class="title">DNS 热点缓存架构图</text>
+  <text x="70" y="112" class="subtitle">XDP 命中则 fast path，未命中则 XDP_PASS 到用户态 slow path，随后回填热点项到 BPF map</text>
+
+  <!-- Top lane -->
+  <rect x="60" y="150" width="1480" height="290" class="lane"/>
+  <text x="90" y="192" class="label">内核侧 / Fast Path</text>
+
+  <rect x="120" y="235" width="200" height="90" class="box" fill="url(#bpf)"/>
+  <text x="220" y="272" text-anchor="middle" class="label">XDP / eBPF</text>
+  <text x="220" y="300" text-anchor="middle" class="tiny">解析 qname + qtype</text>
+
+  <rect x="390" y="220" width="250" height="120" class="box" fill="url(#bpf)"/>
+  <text x="515" y="263" text-anchor="middle" class="label">BPF Hot Cache Map</text>
+  <text x="515" y="292" text-anchor="middle" class="tiny">热点 DNS 记录</text>
+  <text x="515" y="315" text-anchor="middle" class="tiny">小容量 / 低延迟</text>
+
+  <rect x="730" y="220" width="300" height="120" class="box" fill="url(#hit)"/>
+  <text x="880" y="261" text-anchor="middle" class="label">Hit: 直接返回</text>
+  <text x="880" y="292" text-anchor="middle" class="tiny">命中后构造响应并快速发回客户端</text>
+
+  <rect x="730" y="365" width="300" height="70" class="box" fill="#F7F9FC"/>
+  <text x="880" y="408" text-anchor="middle" class="small">未命中则 XDP_PASS</text>
+
+  <!-- Bottom lane -->
+  <rect x="60" y="470" width="1480" height="390" class="lane"/>
+  <text x="90" y="512" class="label">用户态 / Slow Path</text>
+
+  <rect x="120" y="565" width="230" height="100" class="box" fill="url(#user)"/>
+  <text x="235" y="605" text-anchor="middle" class="label">DNS Service</text>
+  <text x="235" y="636" text-anchor="middle" class="tiny">UDP Listener + Response Encoder</text>
+
+  <rect x="410" y="545" width="250" height="120" class="box" fill="url(#user)"/>
+  <text x="535" y="588" text-anchor="middle" class="label">User-space Cache</text>
+  <text x="535" y="618" text-anchor="middle" class="tiny">完整缓存 / TTL / 热点统计</text>
+  <text x="535" y="642" text-anchor="middle" class="tiny">Go map + RWMutex</text>
+
+  <rect x="720" y="545" width="250" height="120" class="box" fill="url(#store)"/>
+  <text x="845" y="588" text-anchor="middle" class="label">Zone Store</text>
+  <text x="845" y="618" text-anchor="middle" class="tiny">权威记录库</text>
+  <text x="845" y="642" text-anchor="middle" class="tiny">A / AAAA / CNAME 等</text>
+
+  <rect x="1050" y="545" width="250" height="120" class="box" fill="#FFF6E6"/>
+  <text x="1175" y="588" text-anchor="middle" class="label">Cache Fill</text>
+  <text x="1175" y="618" text-anchor="middle" class="tiny">用户态回填热点项到 BPF map</text>
+  <text x="1175" y="642" text-anchor="middle" class="tiny">按 TTL / 访问频率更新</text>
+
+  <rect x="1050" y="715" width="250" height="90" class="box" fill="url(#user)"/>
+  <text x="1175" y="756" text-anchor="middle" class="label">Metrics</text>
+  <text x="1175" y="785" text-anchor="middle" class="tiny">请求数 / 命中率 / 时延</text>
+
+  <!-- Flow arrows -->
+  <path d="M320 280 L390 280" class="arrow-line"/>
+  <path d="M640 280 L730 280" class="hit-line"/>
+  <path d="M870 340 L870 365" class="arrow-line"/>
+  <path d="M880 435 L880 500 L235 500 L235 565" class="miss-line"/>
+
+  <path d="M350 615 L410 615" class="arrow-line"/>
+  <path d="M660 605 L720 605" class="arrow-line"/>
+  <path d="M970 605 L1050 605" class="arrow-line"/>
+  <path d="M1175 665 L1175 715" class="arrow-line"/>
+
+  <!-- Feedback arrows -->
+  <path d="M1175 545 L1175 485 L515 485 L515 440" class="dash" stroke="#B86A1B" stroke-width="4" fill="none" marker-end="url(#arrowMiss)"/>
+  <text x="590" y="470" class="tiny" fill="#B86A1B">热点项回填</text>
+
+  <!-- Legend -->
+  <rect x="1320" y="545" width="170" height="170" class="box" fill="rgba(255,255,255,0.72)"/>
+  <text x="1405" y="582" text-anchor="middle" class="label">图例</text>
+  <line x1="1340" y1="615" x2="1390" y2="615" class="hit-line"/>
+  <text x="1405" y="621" class="tiny">命中路径</text>
+  <line x1="1340" y1="650" x2="1390" y2="650" class="miss-line"/>
+  <text x="1405" y="656" class="tiny">未命中 / 放行</text>
+  <line x1="1340" y1="685" x2="1390" y2="685" class="arrow-line"/>
+  <text x="1405" y="691" class="tiny">普通数据流</text>
+</svg>
